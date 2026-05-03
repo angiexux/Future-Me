@@ -1,0 +1,94 @@
+import type { HorizonYears } from '../types'
+
+const horizons: { value: HorizonYears; label: string }[] = [
+  { value: 5, label: '5 years' },
+  { value: 10, label: '10 years' },
+  { value: 20, label: '20 years' },
+]
+
+export function IntakeForm(props: {
+  value: string
+  horizonYears: HorizonYears
+  disabled?: boolean
+  onChangeText: (v: string) => void
+  onChangeHorizon: (v: HorizonYears) => void
+  onSubmit: () => void
+  onDemo: () => void
+}) {
+  return (
+    <section className="mx-auto max-w-3xl px-4 py-12">
+      <header className="mb-10 text-left">
+        <p className="text-xs font-medium uppercase tracking-[0.2em] text-[var(--color-muted)]">
+          Future Self Negotiator
+        </p>
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[var(--color-ink)] md:text-4xl">
+          Map forks — don’t crown a winner
+        </h1>
+        <p className="mt-4 max-w-2xl text-[var(--color-muted)]">
+          Describe where you are, what you want, what scares you, and habits that might
+          contradict your story. The Cartographer draws the regret landscape; it does not
+          pick your lane.
+        </p>
+      </header>
+
+      <label className="block text-left">
+        <span className="mb-2 block text-sm font-medium text-[var(--color-ink)]">
+          Intake
+        </span>
+        <textarea
+          className="min-h-48 w-full resize-y rounded-xl border border-[var(--color-line)] bg-[var(--color-card)] px-4 py-3 text-[var(--color-ink)] placeholder:text-[var(--color-muted)] focus:border-[var(--color-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/25 disabled:opacity-50"
+          placeholder="Situation, goals, fears, habits, decisions weighing on you…"
+          value={props.value}
+          disabled={props.disabled}
+          onChange={(e) => props.onChangeText(e.target.value)}
+        />
+      </label>
+
+      <div className="mt-6 flex flex-wrap items-center gap-4">
+        <span className="text-sm text-[var(--color-muted)]">Horizon hint</span>
+        <div className="flex flex-wrap gap-2">
+          {horizons.map((h) => (
+            <button
+              key={h.value}
+              type="button"
+              disabled={props.disabled}
+              onClick={() => props.onChangeHorizon(h.value)}
+              className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
+                props.horizonYears === h.value
+                  ? 'bg-[var(--color-accent-dim)] text-[var(--color-accent)] ring-1 ring-[var(--color-accent)]/40'
+                  : 'bg-[var(--color-card)] text-[var(--color-muted)] ring-1 ring-[var(--color-line)] hover:text-[var(--color-ink)]'
+              }`}
+            >
+              {h.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-8 flex flex-wrap gap-3">
+        <button
+          type="button"
+          disabled={props.disabled || !props.value.trim()}
+          onClick={props.onSubmit}
+          className="rounded-xl bg-[var(--color-accent)] px-6 py-3 text-sm font-semibold text-[var(--color-canvas)] shadow-lg shadow-black/20 hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          Run negotiation (API)
+        </button>
+        <button
+          type="button"
+          disabled={props.disabled}
+          onClick={props.onDemo}
+          className="rounded-xl border border-[var(--color-line)] bg-transparent px-6 py-3 text-sm font-medium text-[var(--color-ink)] hover:border-[var(--color-accent)]/50 hover:bg-[var(--color-accent-dim)] disabled:opacity-40"
+        >
+          Load demo (no API)
+        </button>
+      </div>
+
+      <p className="mt-6 text-left text-xs leading-relaxed text-[var(--color-muted)]">
+        For local development, add <code className="text-[var(--color-accent)]">ANTHROPIC_API_KEY</code>{' '}
+        to <code className="text-[var(--color-accent)]">.env</code>. The dev server proxies requests so your
+        key never ships to the browser bundle.
+      </p>
+    </section>
+  )
+}
