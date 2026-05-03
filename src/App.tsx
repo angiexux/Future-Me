@@ -1,8 +1,4 @@
-import { useState } from 'react'
-import { CartographerView } from './components/CartographerView'
-import { DebateSection } from './components/DebateSection'
-import { ExtractionSummary } from './components/ExtractionSummary'
-import { FuturePanels } from './components/FuturePanels'
+import { lazy, Suspense, useState } from 'react'
 import { IntakeForm } from './components/IntakeForm'
 import { PipelineLoading } from './components/PipelineLoading'
 import { StageIndicator } from './components/StageIndicator'
@@ -17,6 +13,17 @@ import type {
   PipelineResult,
   PipelineStage,
 } from './types'
+
+const SessionResults = lazy(() => import('./components/SessionResults'))
+
+function ResultsFallback() {
+  return (
+    <div className="mx-auto max-w-5xl px-4 py-16 text-center">
+      <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-[var(--color-line)] border-t-[var(--color-accent)]" />
+      <p className="mt-6 text-sm text-[var(--color-muted)]">Loading results…</p>
+    </div>
+  )
+}
 
 export default function App() {
   const [intake, setIntake] = useState('')
@@ -173,69 +180,13 @@ export default function App() {
       )}
 
       {showResults && result && (
-        <>
-          <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 pt-8">
-            <p className="text-sm text-[var(--color-muted)]">
-              Horizon{' '}
-              <span className="text-[var(--color-ink)]">{result.horizonYears} years</span>
-              {result.runConfig && (
-                <>
-                  {' · '}
-                  <span className="text-[var(--color-ink)]">
-                    {result.runConfig.parallelSelfCount} selves
-                  </span>
-                  {' · '}
-                  <span className="text-[var(--color-ink)]">
-                    {result.runConfig.debateRounds} debate rounds
-                  </span>
-                </>
-              )}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={handleExportMarkdown}
-                className="rounded-xl border border-[var(--color-line)] px-4 py-2 text-sm font-medium text-[var(--color-ink)] hover:bg-[var(--color-card)]"
-              >
-                Export Markdown
-              </button>
-              <button
-                type="button"
-                onClick={handleReset}
-                className="rounded-xl border border-[var(--color-line)] px-4 py-2 text-sm font-medium text-[var(--color-ink)] hover:bg-[var(--color-card)]"
-              >
-                New intake
-              </button>
-            </div>
-          </div>
-
-          <ExtractionSummary extraction={result.extraction} />
-          <FuturePanels trajectories={result.trajectories} />
-          <DebateSection transcript={result.debateTranscript} />
-          <CartographerView output={result.cartographer} />
-
-          <footer className="mx-auto max-w-4xl px-4 pb-16 pt-8 text-left text-xs leading-relaxed text-[var(--color-muted)]">
-            <p>
-              This is not therapy, diagnosis, or crisis care — exploratory journaling with AI.
-              If you may hurt yourself or are in immediate danger, contact local emergency
-              services or a crisis line. In the U.S. and Canada you can call or text{' '}
-              <span className="text-[var(--color-ink)]">988</span>. Elsewhere, see{' '}
-              <a
-                href="https://findahelpline.com"
-                className="text-[var(--color-accent)] underline-offset-2 hover:underline"
-                target="_blank"
-                rel="noreferrer"
-              >
-                https://findahelpline.com
-              </a>
-              .
-            </p>
-            <p className="mt-4">
-              Spec: <code className="text-[var(--color-accent)]">spec.md</code>. Outputs stay in
-              English for this version.
-            </p>
-          </footer>
-        </>
+        <Suspense fallback={<ResultsFallback />}>
+          <SessionResults
+            result={result}
+            onExportMarkdown={handleExportMarkdown}
+            onNewIntake={handleReset}
+          />
+        </Suspense>
       )}
     </div>
   )

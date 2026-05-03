@@ -3,13 +3,20 @@ export interface ClaudeMessage {
   content: string
 }
 
+function apiUrl(path: string): string {
+  const base = (
+    import.meta.env.VITE_API_BASE as string | undefined
+  )?.replace(/\/$/, '') ?? ''
+  return `${base}${path}`
+}
+
 export async function createMessage(params: {
   model: string
   max_tokens: number
   system?: string
   messages: ClaudeMessage[]
 }): Promise<{ content: Array<{ type: string; text?: string }> }> {
-  const res = await fetch('/api/llm', {
+  const res = await fetch(apiUrl('/api/llm'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(params),
@@ -18,8 +25,20 @@ export async function createMessage(params: {
   if (!res.ok) {
     let detail = raw
     try {
-      const j = JSON.parse(raw) as { error?: { message?: string }; message?: string }
-      detail = j.error?.message ?? j.message ?? raw
+      const j = JSON.parse(raw) as {
+        error?: string | { message?: string; type?: string }
+        message?: string
+      }
+      if (typeof j.error === 'object' && j.error?.message) {
+        detail =
+          j.error.type === 'authentication_error'
+            ? `${j.error.message} (check ANTHROPIC_API_KEY on the server)`
+            : j.error.message
+      } else if (typeof j.error === 'string') {
+        detail = j.error
+      } else {
+        detail = j.message ?? raw
+      }
     } catch {
       /* ignore */
     }
