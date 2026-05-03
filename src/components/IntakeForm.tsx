@@ -18,16 +18,21 @@ export function IntakeForm(props: {
   return (
     <section className="mx-auto max-w-3xl px-4 py-12">
       <header className="mb-10 text-left">
-        <p className="text-xs font-medium uppercase tracking-[0.2em] text-[var(--color-muted)]">
-          Future Self Negotiator
-        </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-[var(--color-muted)]">
+            Future Self Negotiator
+          </p>
+          <span className="rounded-full bg-[var(--color-card)] px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[var(--color-muted)] ring-1 ring-[var(--color-line)]">
+            English · UI & output
+          </span>
+        </div>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[var(--color-ink)] md:text-4xl">
           Map forks — don’t crown a winner
         </h1>
         <p className="mt-4 max-w-2xl text-[var(--color-muted)]">
-          Describe where you are, what you want, what scares you, and habits that might
-          contradict your story. The Cartographer draws the regret landscape; it does not
-          pick your lane.
+          A quiet space for therapy-adjacent journaling: say where you are, what you want,
+          what scares you, and habits that might not match the story you tell. The
+          Cartographer sketches tradeoffs across imagined futures — not a verdict.
         </p>
       </header>
 
@@ -45,7 +50,9 @@ export function IntakeForm(props: {
       </label>
 
       <div className="mt-6 flex flex-wrap items-center gap-4">
-        <span className="text-sm text-[var(--color-muted)]">Horizon hint</span>
+        <span className="text-sm text-[var(--color-muted)]">
+          Simulation depth <span className="text-[var(--color-ink)]">(default 10 years)</span>
+        </span>
         <div className="flex flex-wrap gap-2">
           {horizons.map((h) => (
             <button
@@ -85,9 +92,10 @@ export function IntakeForm(props: {
       </div>
 
       <p className="mt-6 text-left text-xs leading-relaxed text-[var(--color-muted)]">
-        For local development, add <code className="text-[var(--color-accent)]">ANTHROPIC_API_KEY</code>{' '}
-        to <code className="text-[var(--color-accent)]">.env</code>. The dev server proxies requests so your
-        key never ships to the browser bundle.
+        For local development, add{' '}
+        <code className="text-[var(--color-accent)]">ANTHROPIC_API_KEY</code> to{' '}
+        <code className="text-[var(--color-accent)]">.env</code>. The dev server proxies requests
+        so your key never ships in the browser bundle.
       </p>
     </section>
   )

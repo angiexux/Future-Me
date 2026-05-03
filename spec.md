@@ -162,9 +162,14 @@ Three prompts carry quality:
 
 ---
 
-## 8. Open decisions (design interview)
+## 8. Product defaults (aligned with builder interview)
 
-Resolved defaults for MVP are **3 selves / 2 debate rounds / 10yr horizon unless user selects otherwise**. Remaining decisions benefit from **product interview** with the builder (see conversation with implementer).
+- **Voice:** Therapy-adjacent journaling — descriptive, compassionate, non-clinical; prompts and UI state this explicitly.
+- **Language:** English for UI and model output (v1).
+- **Horizon:** Default **10 years**; the simulation depth follows the user’s selected chip (5 / 10 / 20), not a conflicting model guess.
+- **Parallel branches:** Fork extraction returns **`parallelAssignments`** (path A or B per fork + short rationale) so three futures diversify emotionally; pipeline falls back + dedupes if the model omits or repeats everything.
+- **Persistence:** **localStorage** optional resume (“saved map”) only — no Supabase/Mem0 until validation.
+- **Safety:** Footer disclaimer + **988** (U.S./Canada) + [findahelpline.com](https://findahelpline.com); not crisis routing logic inside the model.
 
 ---
 

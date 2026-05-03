@@ -6,6 +6,7 @@ import { FuturePanels } from './components/FuturePanels'
 import { IntakeForm } from './components/IntakeForm'
 import { StageIndicator } from './components/StageIndicator'
 import { buildDemoResult } from './lib/demo'
+import { clearLastRun, loadLastRun, saveLastRun } from './lib/lastRun'
 import { runPipeline } from './lib/pipeline'
 import type { HorizonYears, PipelineResult, PipelineStage } from './types'
 
@@ -16,6 +17,7 @@ export default function App() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<PipelineResult | null>(null)
+  const [savedRun, setSavedRun] = useState<PipelineResult | null>(() => loadLastRun())
 
   const showResults = result && stage === 'done'
 
@@ -30,6 +32,8 @@ export default function App() {
       })
       setResult(out)
       setStage('done')
+      saveLastRun(out)
+      setSavedRun(out)
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e)
       setError(msg)
@@ -43,7 +47,13 @@ export default function App() {
     setError(null)
     setBusy(false)
     setStage('done')
-    setResult(buildDemoResult(intake.trim() || 'Demo intake — add your own story later.', horizonYears))
+    const demo = buildDemoResult(
+      intake.trim() || 'Demo intake — add your own story later.',
+      horizonYears,
+    )
+    setResult(demo)
+    saveLastRun(demo)
+    setSavedRun(demo)
   }
 
   function handleReset() {
@@ -52,9 +62,49 @@ export default function App() {
     setStage('idle')
   }
 
+  function resumeSaved() {
+    if (!savedRun) return
+    setResult(savedRun)
+    setStage('done')
+    setError(null)
+  }
+
+  function dismissSaved() {
+    clearLastRun()
+    setSavedRun(null)
+  }
+
   return (
     <div className="min-h-svh">
       <StageIndicator stage={stage} />
+
+      {!showResults && savedRun && (
+        <div className="mx-auto max-w-3xl px-4 pt-6">
+          <div className="flex flex-col gap-3 rounded-xl border border-[var(--color-line)] bg-[var(--color-card)] px-4 py-3 text-left sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-[var(--color-muted)]">
+              You have a saved map from this browser (
+              <span className="text-[var(--color-ink)]">{savedRun.horizonYears}-year</span>{' '}
+              horizon).
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={resumeSaved}
+                className="rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-semibold text-[var(--color-canvas)] hover:brightness-110"
+              >
+                Open saved map
+              </button>
+              <button
+                type="button"
+                onClick={dismissSaved}
+                className="rounded-lg border border-[var(--color-line)] px-4 py-2 text-sm text-[var(--color-ink)] hover:bg-[var(--color-accent-dim)]"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {!showResults && (
         <IntakeForm
@@ -80,7 +130,8 @@ export default function App() {
         <>
           <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 pt-8">
             <p className="text-sm text-[var(--color-muted)]">
-              Horizon: <span className="text-[var(--color-ink)]">{result.horizonYears} years</span>
+              Horizon:{' '}
+              <span className="text-[var(--color-ink)]">{result.horizonYears} years</span>
             </p>
             <button
               type="button"
@@ -96,10 +147,26 @@ export default function App() {
           <DebateSection transcript={result.debateTranscript} />
           <CartographerView output={result.cartographer} />
 
-          <footer className="mx-auto max-w-4xl px-4 pb-16 pt-4 text-center text-xs text-[var(--color-muted)]">
-            Spec & architecture: see{' '}
-            <code className="text-[var(--color-accent)]">spec.md</code>. Not therapy or
-            prediction — exploratory fiction grounded in your words.
+          <footer className="mx-auto max-w-4xl px-4 pb-16 pt-8 text-left text-xs leading-relaxed text-[var(--color-muted)]">
+            <p>
+              This is not therapy, diagnosis, or crisis care — exploratory journaling with AI.
+              If you may hurt yourself or are in immediate danger, contact local emergency
+              services or a crisis line. In the U.S. and Canada you can call or text{' '}
+              <span className="text-[var(--color-ink)]">988</span>. Elsewhere, see{' '}
+              <a
+                href="https://findahelpline.com"
+                className="text-[var(--color-accent)] underline-offset-2 hover:underline"
+                target="_blank"
+                rel="noreferrer"
+              >
+                https://findahelpline.com
+              </a>
+              .
+            </p>
+            <p className="mt-4">
+              Spec: <code className="text-[var(--color-accent)]">spec.md</code>. Outputs stay in
+              English for this version.
+            </p>
           </footer>
         </>
       )}

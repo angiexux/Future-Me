@@ -47,11 +47,20 @@ export interface CartographerOutput {
   tradeoffSummary: string
 }
 
+/** Which branch the parallel self explores for this fork (chosen by the model for diversity). */
+export interface ParallelAssignment {
+  forkId: string
+  explorePath: 'A' | 'B'
+  rationale?: string
+}
+
 export interface ForkExtractionResult {
   forks: Fork[]
   statedVsHabitsTension: string
   horizonYears: HorizonYears
   suppressedForksNote?: string
+  /** One entry per first three forks — which path each parallel self will live out. */
+  parallelAssignments?: ParallelAssignment[]
 }
 
 export interface PipelineResult {

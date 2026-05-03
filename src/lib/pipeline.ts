@@ -14,6 +14,7 @@ import type {
   ForkPlan,
   FutureTrajectory,
   HorizonYears,
+  ParallelAssignment,
   PipelineResult,
   PipelineStage,
 } from '../types'
@@ -27,17 +28,33 @@ function slugId(label: string, idx: number): string {
   return base || `fork_${idx}`
 }
 
-function assignForkPlans(forks: Fork[]): ForkPlan[] {
+function assignForkPlans(
+  forks: Fork[],
+  assignments: ParallelAssignment[] | undefined,
+): ForkPlan[] {
   const top = forks.slice(0, 3)
-  const plans: ForkPlan[] = []
-  const alternation: Array<'A' | 'B'> = ['A', 'B', 'A']
-  top.forEach((f, i) => {
-    plans.push({
-      ...f,
-      id: f.id || slugId(f.label, i),
-      takenPath: alternation[i % alternation.length],
-    })
+  const plans: ForkPlan[] = top.map((f, i) => {
+    const id = f.id || slugId(f.label, i)
+    const match =
+      assignments?.find((a) => a.forkId === id) ?? assignments?.[i]
+    let taken: 'A' | 'B'
+    if (match?.explorePath === 'B') taken = 'B'
+    else if (match?.explorePath === 'A') taken = 'A'
+    else taken = (['A', 'B', 'A'] as const)[i % 3]
+
+    return { ...f, id, takenPath: taken }
   })
+
+  if (
+    plans.length === 3 &&
+    plans[0]!.takenPath === plans[1]!.takenPath &&
+    plans[1]!.takenPath === plans[2]!.takenPath
+  ) {
+    plans[1] = {
+      ...plans[1]!,
+      takenPath: plans[1]!.takenPath === 'A' ? 'B' : 'A',
+    }
+  }
   return plans
 }
 
@@ -56,14 +73,29 @@ async function extractForks(
   if (!parsed.forks?.length) {
     throw new Error('Fork extraction returned no forks.')
   }
-  const hy = parsed.horizonYears
-  if (hy !== 5 && hy !== 10 && hy !== 20) {
-    parsed.horizonYears = horizonHint
-  }
+  parsed.horizonYears = horizonHint
   parsed.forks = parsed.forks.map((f, i) => ({
     ...f,
     id: f.id || slugId(f.label, i),
   }))
+
+  const firstThree = parsed.forks.slice(0, 3)
+  if (parsed.parallelAssignments?.length) {
+    parsed.parallelAssignments = firstThree.map((f, i) => {
+      const prev = parsed.parallelAssignments![i]
+      const byId = parsed.parallelAssignments!.find((a) => a.forkId === f.id)
+      const base = byId ?? prev
+      if (!base) {
+        return { forkId: f.id, explorePath: (['A', 'B', 'A'] as const)[i % 3] }
+      }
+      return {
+        forkId: f.id,
+        explorePath: base.explorePath === 'B' ? 'B' : 'A',
+        rationale: base.rationale,
+      } satisfies ParallelAssignment
+    })
+  }
+
   return parsed
 }
 
@@ -162,8 +194,11 @@ export async function runPipeline(
 
   onProgress?.('forks')
   const extraction = await extractForks(intake, horizonHint)
-  const horizonYears = extraction.horizonYears
-  const plans = assignForkPlans(extraction.forks)
+  const horizonYears = horizonHint
+  const plans = assignForkPlans(
+    extraction.forks,
+    extraction.parallelAssignments,
+  )
 
   onProgress?.('futures')
   const trajectories = await Promise.all(

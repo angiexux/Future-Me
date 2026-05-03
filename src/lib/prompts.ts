@@ -6,19 +6,20 @@ export const MODEL =
   'claude-3-5-sonnet-20241022'
 
 export function forkExtractionPrompt(intake: string, horizonHint: HorizonYears): string {
-  return `You extract genuine life forks from introspective writing — not toy binaries.
+  return `You help someone doing reflective, therapy-adjacent journaling — not clinical care. You extract genuine life forks from their writing — not toy binaries. Do not diagnose or treat; stay descriptive and compassionate.
 
 User intake:
 """
 ${intake}
 """
 
-Requested simulation horizon (years from now): ${horizonHint}.
+They chose a simulation depth of **${horizonHint} years** (count this in outputs as horizonYears).
 
 Tasks:
-1. Identify 3–5 forks the user is *actually* circling. Include forks IMPLIED by fears, avoidance, habits, or things left unsaid — not only what they name explicitly.
+1. Identify 3–5 forks they are *actually* circling. Include forks IMPLIED by fears, avoidance, habits, or things left unsaid — not only what they name explicitly.
 2. Describe tension between what they SAY they value vs what their habits/time imply (where regret often lives).
-3. Pick a horizon in years: 5, 10, or 20 — whichever fits the forks best (may equal ${horizonHint} if appropriate).
+3. echo horizonYears as ${horizonHint} (must be exactly 5, 10, or 20 — use their choice).
+4. For the **first three forks** in your list, assign which branch each parallel future-self will *live out* in simulation — choose **explorePath** "A" or "B" to **maximize narrative and emotional diversity** across the three selves (avoid three identical postures unless the intake truly demands it). Brief **rationale** per fork (one short sentence).
 
 Return ONLY valid JSON with this exact shape (no markdown fences):
 {
@@ -32,17 +33,25 @@ Return ONLY valid JSON with this exact shape (no markdown fences):
   ],
   "statedVsHabitsTension": "one paragraph",
   "horizonYears": ${horizonHint},
-  "suppressedForksNote": "optional — forks implied but not stated outright"
+  "suppressedForksNote": "optional — forks implied but not stated outright",
+  "parallelAssignments": [
+    {
+      "forkId": "fork_1",
+      "explorePath": "A",
+      "rationale": "one short sentence on why this branch for this parallel self"
+    }
+  ]
 }
 
 Rules:
+- parallelAssignments must have exactly three objects, in the same order as the first three forks, and forkId must match those forks' ids.
 - Forks must feel decision-ready for this person.
 - Use their vocabulary where possible.
-- horizonYears must be exactly one of: 5, 10, 20.`
+- horizonYears must equal ${horizonHint}.`
 }
 
 export function futureSelfSystem(intake: string, horizonYears: HorizonYears): string {
-  return `You are not optimizing — you are living a specific life.
+  return `You are not optimizing — you are living a specific life. This is imaginative journaling grounded in the user's words — not therapy, prediction, or medical advice.
 
 Ground rules:
 - Reference at least THREE concrete details from the user's intake (habits, fear, person, place, decision). Quote or paraphrase closely enough that it is unmistakably tied to them.
@@ -90,7 +99,7 @@ export function debatePrompt(
   trajectoriesJson: string,
   rounds: number,
 ): string {
-  return `Facilitate a debate between THREE future selves (same person, different forks).
+  return `Facilitate a reflective dialogue between THREE future selves (same person, different forks). Tone: honest inner debate suitable for therapy-adjacent journaling — not clinical advice.
 
 User intake:
 """
@@ -110,7 +119,7 @@ Output readable transcript text with headings like "Round 1", speakers labeled b
 }
 
 export function cartographerPrompt(debateTranscript: string, trajectoriesJson: string): string {
-  return `You are the Cartographer. You do NOT judge, rank, recommend, or resolve. You MAP.
+  return `You are the Cartographer for reflective journaling — not a clinician. You do NOT judge, rank, recommend, or resolve. You MAP tradeoffs so the person can feel them clearly.
 
 Given these parallel futures (JSON) and this debate transcript, produce structured insight.
 

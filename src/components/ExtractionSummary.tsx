@@ -2,13 +2,19 @@ import type { ForkExtractionResult } from '../types'
 
 export function ExtractionSummary(props: { extraction: ForkExtractionResult }) {
   const e = props.extraction
+
+  function assignmentFor(forkId: string) {
+    return e.parallelAssignments?.find((a) => a.forkId === forkId)
+  }
+
   return (
     <section className="mx-auto max-w-4xl px-4 py-8">
       <h2 className="mb-2 text-left text-xl font-semibold text-[var(--color-ink)]">
         Forks & tension
       </h2>
       <p className="mb-6 max-w-3xl text-left text-sm text-[var(--color-muted)]">
-        What you said vs what your habits imply — the gap is where regret likes to hide.
+        Naming what matters versus how days actually go — that gap is where unfinished
+        feelings often gather. Nothing here tells you what to do; it stays descriptive.
       </p>
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -21,25 +27,43 @@ export function ExtractionSummary(props: { extraction: ForkExtractionResult }) {
           </p>
           {e.suppressedForksNote && (
             <p className="mt-4 border-t border-[var(--color-line)] pt-4 text-sm leading-relaxed text-[var(--color-muted)]">
-              <span className="font-medium text-[var(--color-ink)]">Unsaid forks: </span>
+              <span className="font-medium text-[var(--color-ink)]">Also in the room: </span>
               {e.suppressedForksNote}
             </p>
           )}
         </div>
 
         <ul className="space-y-3 text-left">
-          {e.forks.map((f) => (
-            <li
-              key={f.id}
-              className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-card)] p-4"
-            >
-              <p className="font-medium text-[var(--color-ink)]">{f.label}</p>
-              <p className="mt-2 text-xs uppercase text-[var(--color-muted)]">Path A</p>
-              <p className="text-sm text-[var(--color-ink)]">{f.pathA}</p>
-              <p className="mt-2 text-xs uppercase text-[var(--color-muted)]">Path B</p>
-              <p className="text-sm text-[var(--color-ink)]">{f.pathB}</p>
-            </li>
-          ))}
+          {e.forks.map((f) => {
+            const a = assignmentFor(f.id)
+            const explored =
+              a?.explorePath === 'B' ? f.pathB : a?.explorePath === 'A' ? f.pathA : null
+            return (
+              <li
+                key={f.id}
+                className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-card)] p-4"
+              >
+                <p className="font-medium text-[var(--color-ink)]">{f.label}</p>
+                {a && explored && (
+                  <p className="mt-2 text-xs leading-relaxed text-[var(--color-muted)]">
+                    <span className="font-medium text-[var(--color-accent)]">
+                      Simulated branch ({a.explorePath})
+                    </span>
+                    : {explored}
+                    {a.rationale && (
+                      <span className="mt-1 block italic text-[var(--color-muted)]">
+                        {a.rationale}
+                      </span>
+                    )}
+                  </p>
+                )}
+                <p className="mt-3 text-xs uppercase text-[var(--color-muted)]">Path A</p>
+                <p className="text-sm text-[var(--color-ink)]">{f.pathA}</p>
+                <p className="mt-2 text-xs uppercase text-[var(--color-muted)]">Path B</p>
+                <p className="text-sm text-[var(--color-ink)]">{f.pathB}</p>
+              </li>
+            )
+          })}
         </ul>
       </div>
     </section>

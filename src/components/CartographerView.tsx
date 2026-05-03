@@ -39,7 +39,7 @@ export function CartographerView(props: { output: CartographerOutput }) {
       </h2>
       <p className="mb-8 max-w-3xl text-left text-sm text-[var(--color-muted)]">
         A landscape, not a podium — tradeoffs across peace, accomplishment, surprise,
-        integration, and vitality.
+        integration, and vitality. Scores are comparative prompts for reflection, not grades.
       </p>
 
       <div className="grid gap-10 lg:grid-cols-5 lg:items-start">

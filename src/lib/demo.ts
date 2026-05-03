@@ -30,6 +30,26 @@ export function buildDemoResult(intake: string, horizonYears: HorizonYears): Pip
       horizonYears,
       suppressedForksNote:
         'A quieter fork: whether you ask for help before resentment compounds.',
+      parallelAssignments: [
+        {
+          forkId: 'stay_course',
+          explorePath: 'A',
+          rationale:
+            'Anchors one simulation in continuity so contrast with optionality-heavy paths stays vivid.',
+        },
+        {
+          forkId: 'relationship_risk',
+          explorePath: 'B',
+          rationale:
+            'Spreads emotional posture — solitude here balances the “stay” self’s rootedness.',
+        },
+        {
+          forkId: 'visibility',
+          explorePath: 'B',
+          rationale:
+            'Keeps accomplishment narratives from aligning on external prestige alone.',
+        },
+      ],
     },
     trajectories: [
       {

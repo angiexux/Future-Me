@@ -8,8 +8,8 @@ export function FuturePanels(props: { trajectories: FutureTrajectory[] }) {
         Parallel futures
       </h2>
       <p className="mb-8 max-w-3xl text-left text-sm text-[var(--color-muted)]">
-        Three selves — same roots, different forks. Each voice must anchor to your intake;
-        none is declared winner.
+        Three imagined selves — same roots, different forks. Each voice ties back to what you
+        wrote; none is declared better. Let reactions surface without rushing to choose.
       </p>
       <div className="grid gap-6 md:grid-cols-3">
         {props.trajectories.map((t) => (
