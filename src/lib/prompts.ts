@@ -1,11 +1,18 @@
-import type { HorizonYears } from '../types'
+import type { HorizonYears, ParallelSelfCount } from '../types'
 
 /** Override with `VITE_ANTHROPIC_MODEL` in `.env` if your workspace uses another Sonnet snapshot. */
 export const MODEL =
   (import.meta.env.VITE_ANTHROPIC_MODEL as string | undefined) ??
   'claude-3-5-sonnet-20241022'
 
-export function forkExtractionPrompt(intake: string, horizonHint: HorizonYears): string {
+export function forkExtractionPrompt(
+  intake: string,
+  horizonHint: HorizonYears,
+  parallelSelfCount: ParallelSelfCount,
+): string {
+  const minForks = parallelSelfCount
+  const maxForks = parallelSelfCount + 2
+
   return `You help someone doing reflective, therapy-adjacent journaling — not clinical care. You extract genuine life forks from their writing — not toy binaries. Do not diagnose or treat; stay descriptive and compassionate.
 
 User intake:
@@ -14,12 +21,13 @@ ${intake}
 """
 
 They chose a simulation depth of **${horizonHint} years** (count this in outputs as horizonYears).
+They want **${parallelSelfCount}** parallel future selves — you must surface at least **${minForks}** concrete forks (aim for ${minForks}–${maxForks} forks total).
 
 Tasks:
-1. Identify 3–5 forks they are *actually* circling. Include forks IMPLIED by fears, avoidance, habits, or things left unsaid — not only what they name explicitly.
+1. Identify ${minForks}–${maxForks} forks they are *actually* circling. Include forks IMPLIED by fears, avoidance, habits, or things left unsaid — not only what they name explicitly.
 2. Describe tension between what they SAY they value vs what their habits/time imply (where regret often lives).
 3. echo horizonYears as ${horizonHint} (must be exactly 5, 10, or 20 — use their choice).
-4. For the **first three forks** in your list, assign which branch each parallel future-self will *live out* in simulation — choose **explorePath** "A" or "B" to **maximize narrative and emotional diversity** across the three selves (avoid three identical postures unless the intake truly demands it). Brief **rationale** per fork (one short sentence).
+4. For the **first ${parallelSelfCount} forks** in your list, assign which branch each parallel future-self will *live out* in simulation — choose **explorePath** "A" or "B" to **maximize narrative and emotional diversity** across all ${parallelSelfCount} selves (avoid identical posture on every fork unless the intake truly demands it). Brief **rationale** per fork (one short sentence).
 
 Return ONLY valid JSON with this exact shape (no markdown fences):
 {
@@ -44,7 +52,8 @@ Return ONLY valid JSON with this exact shape (no markdown fences):
 }
 
 Rules:
-- parallelAssignments must have exactly three objects, in the same order as the first three forks, and forkId must match those forks' ids.
+- List forks in descending importance / centrality. The first ${parallelSelfCount} forks drive parallel simulations.
+- parallelAssignments must have exactly **${parallelSelfCount}** objects, in the same order as the first ${parallelSelfCount} forks, and forkId must match those forks' ids.
 - Forks must feel decision-ready for this person.
 - Use their vocabulary where possible.
 - horizonYears must equal ${horizonHint}.`
@@ -98,8 +107,9 @@ export function debatePrompt(
   intake: string,
   trajectoriesJson: string,
   rounds: number,
+  parallelSelfCount: number,
 ): string {
-  return `Facilitate a reflective dialogue between THREE future selves (same person, different forks). Tone: honest inner debate suitable for therapy-adjacent journaling — not clinical advice.
+  return `Facilitate a reflective dialogue between **${parallelSelfCount}** future selves (same person, different forks). Tone: honest inner debate suitable for therapy-adjacent journaling — not clinical advice.
 
 User intake:
 """
@@ -111,7 +121,7 @@ ${trajectoriesJson}
 
 Rules:
 - Exactly ${rounds} rounds.
-- Each self speaks once per round.
+- Each self speaks once per round (all ${parallelSelfCount} voices participate each round).
 - EVERY self must STEELMAN at least one other path BEFORE arguing for their own (per round or clearly across rounds — make it explicit).
 - No winner framing; surface tradeoffs and emotional truth.
 
@@ -130,6 +140,8 @@ Debate:
 """
 ${debateTranscript}
 """
+
+Include exactly one object in the "selves" array per trajectory (same count and fork ids), so the map matches every parallel future above.
 
 Return ONLY valid JSON:
 {

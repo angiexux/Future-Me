@@ -86,8 +86,10 @@ Each agent:
 
 | Item | MVP | Full vision |
 |------|-----|-------------|
-| Parallel selves | 3 | 5 |
-| Debate rounds | 2 | 3–4 |
+| Parallel selves | 3 (default) or **5** via UI | 5 |
+| Debate rounds | 2 (default); UI **2–4** | 3–4 in full spec |
+| Session export | Download Markdown (intake, forks, trajectories, debate, Cartographer) | — |
+| Loading | Full-screen stage overlay (forks → futures → debate → map) | — |
 | Horizons | One chosen at intake (e.g. 10yr) | Per-fork tuning |
 | Memory | Stateless | Mem0 / return visits |
 | Persistence | Optional localStorage demo | Supabase |

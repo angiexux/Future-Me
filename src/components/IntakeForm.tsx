@@ -1,4 +1,8 @@
-import type { HorizonYears } from '../types'
+import type {
+  DebateRoundCount,
+  HorizonYears,
+  ParallelSelfCount,
+} from '../types'
 
 const horizons: { value: HorizonYears; label: string }[] = [
   { value: 5, label: '5 years' },
@@ -6,12 +10,27 @@ const horizons: { value: HorizonYears; label: string }[] = [
   { value: 20, label: '20 years' },
 ]
 
+const selvesOptions: { value: ParallelSelfCount; label: string }[] = [
+  { value: 3, label: '3 selves' },
+  { value: 5, label: '5 selves' },
+]
+
+const roundsOptions: { value: DebateRoundCount; label: string }[] = [
+  { value: 2, label: '2 rounds' },
+  { value: 3, label: '3 rounds' },
+  { value: 4, label: '4 rounds' },
+]
+
 export function IntakeForm(props: {
   value: string
   horizonYears: HorizonYears
+  parallelSelfCount: ParallelSelfCount
+  debateRounds: DebateRoundCount
   disabled?: boolean
   onChangeText: (v: string) => void
   onChangeHorizon: (v: HorizonYears) => void
+  onChangeParallelSelfCount: (v: ParallelSelfCount) => void
+  onChangeDebateRounds: (v: DebateRoundCount) => void
   onSubmit: () => void
   onDemo: () => void
 }) {
@@ -72,7 +91,59 @@ export function IntakeForm(props: {
         </div>
       </div>
 
-      <div className="mt-8 flex flex-wrap gap-3">
+      <div className="mt-8 border-t border-[var(--color-line)] pt-8">
+        <p className="mb-4 text-left text-sm font-medium text-[var(--color-ink)]">
+          Run shape
+        </p>
+        <p className="mb-4 max-w-2xl text-left text-xs text-[var(--color-muted)]">
+          More parallel selves and debate rounds mean more API calls and latency — useful when
+          you want fuller multiplicity or a longer convening.
+        </p>
+
+        <div className="mb-6 flex flex-wrap items-center gap-4">
+          <span className="text-sm text-[var(--color-muted)]">Parallel selves</span>
+          <div className="flex flex-wrap gap-2">
+            {selvesOptions.map((s) => (
+              <button
+                key={s.value}
+                type="button"
+                disabled={props.disabled}
+                onClick={() => props.onChangeParallelSelfCount(s.value)}
+                className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
+                  props.parallelSelfCount === s.value
+                    ? 'bg-[var(--color-accent-dim)] text-[var(--color-accent)] ring-1 ring-[var(--color-accent)]/40'
+                    : 'bg-[var(--color-card)] text-[var(--color-muted)] ring-1 ring-[var(--color-line)] hover:text-[var(--color-ink)]'
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-4">
+          <span className="text-sm text-[var(--color-muted)]">Debate rounds</span>
+          <div className="flex flex-wrap gap-2">
+            {roundsOptions.map((r) => (
+              <button
+                key={r.value}
+                type="button"
+                disabled={props.disabled}
+                onClick={() => props.onChangeDebateRounds(r.value)}
+                className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
+                  props.debateRounds === r.value
+                    ? 'bg-[var(--color-accent-dim)] text-[var(--color-accent)] ring-1 ring-[var(--color-accent)]/40'
+                    : 'bg-[var(--color-card)] text-[var(--color-muted)] ring-1 ring-[var(--color-line)] hover:text-[var(--color-ink)]'
+                }`}
+              >
+                {r.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-10 flex flex-wrap gap-3">
         <button
           type="button"
           disabled={props.disabled || !props.value.trim()}

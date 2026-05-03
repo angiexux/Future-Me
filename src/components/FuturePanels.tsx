@@ -8,10 +8,17 @@ export function FuturePanels(props: { trajectories: FutureTrajectory[] }) {
         Parallel futures
       </h2>
       <p className="mb-8 max-w-3xl text-left text-sm text-[var(--color-muted)]">
-        Three imagined selves — same roots, different forks. Each voice ties back to what you
-        wrote; none is declared better. Let reactions surface without rushing to choose.
+        {props.trajectories.length} imagined selves — same roots, different forks. Each voice
+        ties back to what you wrote; none is declared better. Let reactions surface without
+        rushing to choose.
       </p>
-      <div className="grid gap-6 md:grid-cols-3">
+      <div
+        className={`grid gap-6 ${
+          props.trajectories.length >= 5
+            ? 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-5'
+            : 'md:grid-cols-3'
+        }`}
+      >
         {props.trajectories.map((t) => (
           <TrajectoryCard key={`${t.forkId}-${t.chosenPath}`} trajectory={t} />
         ))}

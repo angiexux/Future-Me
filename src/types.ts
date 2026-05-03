@@ -1,5 +1,15 @@
 export type HorizonYears = 5 | 10 | 20
 
+/** How many parallel future selves to simulate (full spec uses five). */
+export type ParallelSelfCount = 3 | 5
+
+export type DebateRoundCount = 2 | 3 | 4
+
+export interface RunConfig {
+  parallelSelfCount: ParallelSelfCount
+  debateRounds: DebateRoundCount
+}
+
 export interface Fork {
   id: string
   label: string
@@ -59,7 +69,7 @@ export interface ForkExtractionResult {
   statedVsHabitsTension: string
   horizonYears: HorizonYears
   suppressedForksNote?: string
-  /** One entry per first three forks — which path each parallel self will live out. */
+  /** One entry per simulated fork (same count as parallel selves) — branch each self explores. */
   parallelAssignments?: ParallelAssignment[]
 }
 
@@ -70,6 +80,8 @@ export interface PipelineResult {
   trajectories: FutureTrajectory[]
   debateTranscript: string
   cartographer: CartographerOutput
+  /** Present on runs after this field was added; older saved maps may omit it. */
+  runConfig?: RunConfig
 }
 
 export type PipelineStage =

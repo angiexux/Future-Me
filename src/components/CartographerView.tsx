@@ -47,7 +47,9 @@ export function CartographerView(props: { output: CartographerOutput }) {
           <p className="mb-4 text-center text-xs font-medium uppercase tracking-wide text-[var(--color-muted)]">
             Regret landscape (relative scores)
           </p>
-          <div className="h-[340px] w-full">
+          <div
+            className={`w-full ${props.output.selves.length > 3 ? 'h-[380px]' : 'h-[340px]'}`}
+          >
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart data={radarRows} cx="50%" cy="52%" outerRadius="78%">
                 <PolarGrid stroke="var(--color-line)" />
