@@ -10,7 +10,19 @@ npm install
 npm run dev
 ```
 
-The Vite dev server proxies `POST /api/llm` to Anthropic so the API key stays off the client bundle.
+Then open **http://localhost:5173** (Vite default). The dev server proxies `POST /api/llm` to Anthropic so the API key stays off the client bundle.
+
+### `ERR_CONNECTION_REFUSED`
+
+That means **no dev server is running** or you’re using the **wrong port**:
+
+| Command | URL | When |
+|--------|-----|------|
+| `npm run dev` | http://localhost:**5173** | Active development (use this first) |
+| `npm run preview` | http://localhost:**4173** | After `npm run build`; same proxy as dev |
+| `npm start` | http://localhost:**4173** | After `npm run build`; Node serves `dist/` + proxy |
+
+Do not open the app until you’ve started one of these in a terminal and it prints “ready” / the listening URL. If 5173 is busy, Vite may pick the next free port — read the terminal output for the exact link.
 
 ## Production-style run (static build + Node proxy)
 
