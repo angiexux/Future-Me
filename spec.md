@@ -99,6 +99,8 @@ Each agent:
 
 ## 4. Technical architecture
 
+**This repository (MVP):** the Anthropic key is read only in Vite’s dev server via `loadEnv` and forwarded through a small `POST /api/llm` proxy (see `vite.config.ts`). Production requires a real backend or serverless route—`npm run build` static assets alone cannot call Anthropic without exposing the key.
+
 ### Stack (aligned with spec)
 
 - **Frontend:** React, Tailwind CSS, Vite.
